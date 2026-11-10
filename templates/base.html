@@ -3,15 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('stylesheet' ) }}">
     <title>{% block title %}CRM система{% endblock %}</title>
 </head>
 <body>
     <header>
-        <a href="/"></a>
-        <nav>
-
+        <nav class="navbar">
+            <a href="{{ url_for('index.html' ) }}" class="navbar-brand">
+                <i class="bi bi-bus-front"></i>Пассажирам РФ
+            </a>
+            <div class="container">
+                {% if current_user.is_authenticated  %}
+                    <a href="{{ url_for('profile' ) }}">
+                        <i class="bi bi-person-circle"></i>Профиль
+                    </a>
+                    <a href="{{ url_for('logout' ) }}">
+                        <i class="bi bi-person-circle"></i>Выйти
+                    </a>
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('admin' ) }}">
+                            <i bi bi-person-circle></i>Админка
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('login' ) }}">
+                        <i class="bi bi-person-circle"></i>Войти
+                    </a>
+                    <a href="{{ url_for('register' ) }}">
+                        <i class="bi bi-person-circle"></i>Регистрация
+                    </a>
+                {% endif %}
+            </div>
         </nav>
     </header>
+
+    {% with messeges = get_flashed_nesseges(with_categories=true)  %}
+        {% if messeges %}
+            <div class="container">
+                {% for category, messege in messeges %}
+                    <div class="alert alert-{{ category }} alert-dismissible fage show" role="alert">
+                        {{ messege }}
+                        <button class="btn-close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <main>
         {% block content %}
             
