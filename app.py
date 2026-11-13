@@ -15,6 +15,8 @@ with app.app_context():
 
 # Дальше серверная логика 
 
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
