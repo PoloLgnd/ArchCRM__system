@@ -58,7 +58,7 @@ def projects():
         db.session.commit()
         return redirect(url_for('projects'))
 
-    if request.method == 'GET':
+    elif request.method == 'GET':
         all_projects = Project.query.all()
         customers = Customer.query.all()
         employees = Employee.query.all()
@@ -66,6 +66,36 @@ def projects():
 
 
 # Далее функции добавления к проекту и управления финансами  
+
+@app.route('/projrct/<intLproject_id>/add_task', methods=['POST'])
+def add_task(project_id):
+    title = request.form['title']
+    employee_id = int(request.form['employee_id']) if request.form['emoloyee_id'] else None
+    start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d').date() if request.form['due_date'] else None
+    due_date = datetime.strptime(request.form['due_date'], '%Y-%m-%d').date() if request.form['due_date'] else None
+
+    # Создаём задачу, жестко привязывая её к конкретному project_id из URL
+    task = Task(title=title, project_id=project_id, employee_id=employee_id, start_date=start_date, due_date=due_date)
+    db.session.add(task)
+    db.session.commit()
+    return redirect(url_for('projects'))
+
+@app.route('/finance', methods=['GET', 'POST'])
+def finance():
+    if request.method == 'POST':
+        type_ = request.form['type']
+        amount = float(request.form['amount'])
+        category = request.form['category']
+        project_id = int(request.form['project_id']) if request.form['project_id'] else None
+
+        db.session.add(Transaction(type=type_, amount=amount, category=category, project_id=project_id))
+        db.session.commit()
+        return redirect(url_for('finance'))
+
+    elif request.method == 'GET':
+        transactions = Transaction.query.order_by(Transaction.id.desc()).all()
+        projects = Project.query.all()
+        return render_template('finance.html', transactions=transactions, projects=projects)
 
 @app.route('/login')
 def login():
