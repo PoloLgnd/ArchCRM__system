@@ -1,5 +1,5 @@
-from extensions import db
 from datetime import datetime
+from extensions import db
 
 # Клиенты
 class Customer(db.Model):
@@ -20,6 +20,7 @@ class Employee(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(50), nullable=False) # Разработчик, дизайнер и тд
     email = db.Column(db.String(120), unique=True, nullable=False) # Новая, В работе, Выиграно, Проиграно
 
@@ -51,7 +52,7 @@ class Task(db.Model):
     due_date = db.Column(db.Date, nullable=True)
 
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
-    employee_id = db.Column(db.Integer, db.ForeinKey('employee_id'), nullable=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=True)
 
 # Бюджет
 class Transaction(db.Model):
