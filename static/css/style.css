@@ -4,7 +4,7 @@
     height: 200px;
     background-color: black;
     color: blueviolet;
-    font-size: medium;
+    font-size: large;
     text-align: justify;
     content: "Хэй! Это тест подключения стилей к основному файлу!";
 }
