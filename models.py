@@ -6,7 +6,7 @@ class Users(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.Integer(250), nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(50), default='Менеджер') # Менеджер, Админ
 
     task = db.relationship('Task', backref='assignee', lazy=True)

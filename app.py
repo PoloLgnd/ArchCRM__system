@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, logout_user, login_user, login_required, current_user  
+from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
-from models import Customer, Employee, Project, Task, Transaction
+from models import Customer, Employee, Project, Task, Transaction, Users
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -17,14 +18,59 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Employee.query.get(int(user_id))
+    return Users.query.get(int(user_id))
 
 with app.app_context():
     db.create_all()
 
 # Дальше серверная логика 
 
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user = Users.query.filter_by(username=username).first()
+
+        if user and check_password_hash(user.password_hash, password):
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('Неверное имя пользователя или пароль', 'danger')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+@app.route('/register')
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Проверка есть ли пользователь в БД
+        existing_user = Users.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Такое имя пользователя уже существует.', 'danger')
+            return redirect(url_for('register'))
+
+        hashed_password = generate_password_hash(password)
+        new_user = Users(username=username, password_hash=hashed_password)
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Регистрация прошла успешно! Войдите в систему.', 'succes')
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+
 @app.route('/')
+@login_required
 def index():
     total_projects = Project.query.count()
     income = db.session.query(db.func.sum(Transaction.amount)).filter_by(type='Доход').scalar() or 0.0 # Доходы
@@ -39,7 +85,8 @@ def index():
                            net_profit=net_profit,
                            projects=projects)
 
-@app.route('/projects', method=['GET', 'POST'])
+@app.route('/projects', methods=['GET', 'POST'])
+@login_required
 def projects():
     if request.method == 'POST':
         name = request.form['name']
@@ -61,13 +108,15 @@ def projects():
     elif request.method == 'GET':
         all_projects = Project.query.all()
         customers = Customer.query.all()
+        users = Users.query.all()
         employees = Employee.query.all()
-        return render_template('projects.html', projects=all_projects, customers=customers, employees=employees)
+        return render_template('projects.html', projects=all_projects, customers=customers, employees=users)
 
 
 # Далее функции добавления к проекту и управления финансами  
 
 @app.route('/projrct/<intLproject_id>/add_task', methods=['POST'])
+@login_required
 def add_task(project_id):
     title = request.form['title']
     employee_id = int(request.form['employee_id']) if request.form['emoloyee_id'] else None
@@ -96,18 +145,6 @@ def finance():
         transactions = Transaction.query.order_by(Transaction.id.desc()).all()
         projects = Project.query.all()
         return render_template('finance.html', transactions=transactions, projects=projects)
-
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    return render_template('logout.html')
-
-@app.route('/register')
-def register():
-    return render_template('register.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
