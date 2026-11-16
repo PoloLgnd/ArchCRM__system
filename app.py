@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, logout_user, login_user, login_required, current_user  
 from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
-from models import Customer, Employee, Project, Task, Transaction, Users
+from models import Customer, Project, Task, Transaction, Users
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -46,7 +46,7 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -109,7 +109,7 @@ def projects():
         all_projects = Project.query.all()
         customers = Customer.query.all()
         users = Users.query.all()
-        employees = Employee.query.all()
+        # employees = Employee.query.all()
         return render_template('projects.html', projects=all_projects, customers=customers, employees=users)
 
 

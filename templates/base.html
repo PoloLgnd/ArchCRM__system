@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css' ) }}">
     <title>{% block title %}CRM система{% endblock %}</title>
 </head>
-<body>
+<body class='d-flex flex-column min-vh-100'>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
             <div class="container">
@@ -61,7 +61,7 @@
             
         {% endblock %}
     </main>
-    <footer>
+    <footer class="mt-auto bg-dark text-white py-3 d-flex justify-content-center">
         <p>CRM system 2026</p>
     </footer>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>

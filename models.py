@@ -1,15 +1,16 @@
 from datetime import datetime
 from extensions import db
+from flask_login import UserMixin
 
 # Пользователи
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(50), default='Менеджер') # Менеджер, Админ
 
-    task = db.relationship('Task', backref='assignee', lazy=True)
+    task = db.relationship('Task', backref='assignee', foreign_keys='Task.employee_id', lazy=True)
 
 # Клиенты
 class Customer(db.Model):
@@ -18,22 +19,20 @@ class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
-    company = db.Column(db.String(100), nullable=False)
 
     # Связь со проектами (каскадное удаление: при удалении пользователя удаляется и его проекты)
-    projects = db.relationship('Project', backref='customer', lazy=True)
+    projects = db.relationship('Project', backref='customer', lazy=True, cascade='all, delete-orphan')
 
 # Сотрудники
-class Employee(db.Model):
-    __tablename__ = 'employees'
+# class Employee(db.Model):
+#     __tablename__ = 'employees'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.String(50), nullable=False) # Разработчик, дизайнер и тд
-    email = db.Column(db.String(120), unique=True, nullable=False) # Новая, В работе, Выиграно, Проиграно
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(100), nullable=False)
+#     role = db.Column(db.String(50), nullable=False) # Разработчик, дизайнер и тд
+#     email = db.Column(db.String(120), unique=True, nullable=False) # Новая, В работе, Выиграно, Проиграно
 
-    tasks = db.relationship('Task', backref='assignee', lazy=True)
+#     tasks = db.relationship('Task', backref='assignee', lazy=True)
 
 # Проекты
 class Project(db.Model):
@@ -61,7 +60,7 @@ class Task(db.Model):
     due_date = db.Column(db.Date, nullable=True)
 
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
 # Бюджет
 class Transaction(db.Model):
@@ -71,6 +70,6 @@ class Transaction(db.Model):
     amount = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(50), nullable=False)
     date = db.Column(db.Date, default=datetime.utcnow)
-    descripton = db.Column(db.String(200), nullable=True)
+    # descripton = db.Column(db.String(200), nullable=True)
 
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=True)
