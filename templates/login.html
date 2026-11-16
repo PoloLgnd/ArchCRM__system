@@ -3,5 +3,29 @@
 {% block title %}Логин{% endblock %}
 
 {% block content %}
-    
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Вход в систему</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Имя пользователя</label>
+                            <input type="text" class="form-control" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Пароль</label>
+                            <input type="text" class="form-control" name="password" required>
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit">Войти</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <small>Нет аккаунта? <a href="{{ url_for('register' ) }}">Зарегистрироваться</a></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
