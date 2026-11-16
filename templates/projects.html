@@ -1,7 +1,70 @@
 {% extends 'base.html' %}
 
-{% block title %}Профиль{% endblock %}
+{% block title %}Проекты{% endblock %}
 
 {% block content %}
-    
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">Новый проект</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Название проекта</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Бюджет ($)</label>
+                        <input type="number" step="0.01" class="form-control" name="budget" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ID Клиента</label>
+                        <input type="number" class="form-control" name="customer_id" placeholder="Например: 1" required>
+                        <div class="form-text">Сначала убедитесь, что клиент с таким ID создан в базе.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Дата начала</label>
+                        <input type="date" class="form-control" name="start_date">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Дедлайн</label>
+                        <input type="date" class="form-control" name="end_date">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Создать проект</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список проектов -->
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">Активные проекты</div>
+            <div class="card-body">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Бюджет</th>
+                            <th>Статус</th>
+                            <th>Сроки</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in projects %}
+                        <tr>
+                            <td><strong>{{ p.name }}</strong></td>
+                            <td>${{ "%.2f"|format(p.budget) }}</td>
+                            <td><span class="badge bg-secondary">{{ p.status }}</span></td>
+                            <td><small>{{ p.start_date or '—' }} / {{ p.end_date or '—' }}</small></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center">Проектов пока нет</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
